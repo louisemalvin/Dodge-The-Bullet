@@ -1,14 +1,18 @@
 extends Area2D
-#Add
+
+signal hit
+
 @export var dodge_cooldown = 0.5
-@export var speed = 400 # How fast the player will move (pixels/sec).
+@export var speed = 400
 @export var dodge_multiplier = 2
 @export var dodge_duration = 0.2
+
 var dodge_timer = 0.0
 var cooldown_timer = 0.0
-var screen_size # Size
+var screen_size 
 
 func _ready():
+	hide()
 	screen_size = get_viewport_rect().size
 	
 func _process(delta):
@@ -30,8 +34,6 @@ func _process(delta):
 		if dodge_timer > 0.0:
 			velocity *= dodge_multiplier
 			dodge_timer -= delta
-		
-			
 		$AnimatedSprite2D.play()
 	else:
 		$AnimatedSprite2D.stop()
@@ -53,3 +55,15 @@ func _process(delta):
 func is_dodge_ready():
 	return cooldown_timer <= 0.0
 	
+
+
+func _on_body_entered(body):
+	hide()
+	hit.emit()
+	$CollisionShape2D.set_deferred("disabled", true)
+	
+
+func start(pos):
+	position = pos
+	show()
+	$CollisionShape2D.disabled = false
